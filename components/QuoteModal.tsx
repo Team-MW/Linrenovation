@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Phone, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import Logo from './Logo';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -111,8 +112,11 @@ export default function QuoteModal({ isOpen, onClose, initialService }: QuoteMod
         ) : (
           <div>
             <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: '14px' }}>
+                <Logo size="sm" asLink={false} />
+              </div>
               <div className="eyebrow-badge" style={{ marginBottom: '8px' }}>
-                DEVIS GRATUIT SOUS 48H
+                DEVIS GRATUIT SOUS 48H · TOULOUSE
               </div>
               <h3 style={{ fontSize: '26px', color: '#0f172a', lineHeight: 1.2 }}>
                 Votre projet de rénovation à Toulouse

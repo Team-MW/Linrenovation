@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { Phone, ArrowRight, ShieldCheck, CheckCircle2, Clock, Sparkles } from 'lucide-react';
 
+import Logo from './Logo';
+
 interface HeroProps {
   onOpenDevis?: () => void;
 }
@@ -29,6 +31,24 @@ export default function Hero({ onOpenDevis }: HeroProps) {
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: '880px', margin: '0 auto', textAlign: 'center', marginBottom: '56px' }}>
           
+          {/* Logo prominently displayed matching DA reference image */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+            <div
+              style={{
+                padding: '14px 28px',
+                borderRadius: '24px',
+                backgroundColor: '#ffffff',
+                border: '1px solid rgba(15, 23, 42, 0.08)',
+                boxShadow: '0 12px 35px -10px rgba(15, 23, 42, 0.08)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Logo size="lg" asLink={false} />
+            </div>
+          </div>
+
           {/* Eyebrow badge matching the DA */}
           <div className="eyebrow-badge animate-fade-in">
             RÉNOVATION TOUS CORPS D'ÉTAT · TOULOUSE

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import Logo from './Logo';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
@@ -60,6 +61,9 @@ export default function ContactSection() {
             }}
           >
             <div>
+              <div style={{ marginBottom: '20px' }}>
+                <Logo size="sm" asLink={false} />
+              </div>
               <span
                 style={{
                   fontSize: '11px',
