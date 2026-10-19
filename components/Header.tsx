@@ -2,430 +2,124 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Phone,
-  Menu,
-  X,
-  ArrowUpRight,
-  ChevronRight,
-  Layers,
-  Sparkles,
-  Briefcase,
-  ListOrdered,
-  Calculator,
-  Star,
-  MapPin
-} from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Phone, Menu, X, ArrowUpRight, ChevronRight } from 'lucide-react';
 import Logo from './Logo';
+import { useQuote } from './QuoteProvider';
+import { navItems, site } from '@/lib/site';
 
-interface HeaderProps {
-  onOpenDevis?: () => void;
-}
-
-const navItems = [
-  { label: 'Expertises', href: '#services', icon: Layers },
-  { label: 'Avant / Après', href: '#avant-apres', icon: Sparkles },
-  { label: 'Réalisations', href: '#realisations', icon: Briefcase },
-  { label: 'Notre Méthode', href: '#methode', icon: ListOrdered },
-  { label: 'Simulateur', href: '#simulateur', icon: Calculator },
-  { label: 'Avis', href: '#avis', icon: Star },
-];
-
-export default function Header({ onOpenDevis }: HeaderProps) {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const { openQuote } = useQuote();
 
-  // Monitor scroll for shadow effect
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMobileMenuOpen(false);
+    document.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
     };
   }, [mobileMenuOpen]);
 
   return (
-    <header
-      className={`glass-header ${scrolled ? 'header-scrolled' : ''}`}
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.94)' : 'rgba(248, 250, 252, 0.92)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
-        transition: 'all 0.25s ease',
-      }}
-    >
-      <div
-        className="container"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '84px',
-          padding: '0 24px',
-        }}
-      >
-        {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+    <header className={`glass-header ${scrolled ? 'header-scrolled' : ''}`}>
+      <div className="container header-inner">
+        <div className="header-logo">
           <Logo size="md" />
         </div>
 
-        {/* Desktop Navigation - Perfectly aligned vertically */}
-        <nav
-          style={{
-            display: 'none',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '28px',
-            height: '100%',
-          }}
-          className="desktop-nav"
-        >
+        <nav className="desktop-nav" aria-label="Navigation principale">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
-              className="nav-link"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                height: '100%',
-                fontSize: '14.5px',
-                fontWeight: 500,
-                color: '#334155',
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                lineHeight: 1,
-                position: 'relative',
-                padding: '4px 0',
-              }}
+              className={`nav-link ${isActive(item.href) ? 'nav-link-active' : ''}`}
+              aria-current={isActive(item.href) ? 'page' : undefined}
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
-        {/* Desktop Actions */}
-        <div
-          style={{
-            display: 'none',
-            alignItems: 'center',
-            gap: '14px',
-            flexShrink: 0,
-          }}
-          className="desktop-actions"
-        >
-          <a
-            href="tel:0616219905"
-            className="phone-pill-btn"
-            title="Appeler L.I.N Rénovation"
-            style={{
-              padding: '10px 20px',
-              fontSize: '14px',
-              lineHeight: 1,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
+        <div className="desktop-actions">
+          <a href={site.phoneHref} className="phone-pill-btn header-phone" style={{ padding: '10px 18px', fontSize: '14px' }}>
             <Phone size={15} />
-            <span>06 16 21 99 05</span>
+            <span>{site.phone}</span>
           </a>
-
-          <button
-            onClick={onOpenDevis}
-            className="btn-primary"
-            style={{
-              padding: '10px 20px',
-              fontSize: '14px',
-              lineHeight: 1,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            <span>Devis Gratuit</span>
+          <button onClick={() => openQuote()} className="btn-primary" style={{ padding: '10px 20px', fontSize: '14px' }}>
+            <span>Devis gratuit</span>
             <ArrowUpRight size={15} />
           </button>
         </div>
 
-        {/* Mobile menu trigger */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} className="mobile-trigger-wrap">
-          <a
-            href="tel:0616219905"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
-              backgroundColor: '#eff6ff',
-              color: '#1d4ed8',
-              border: '1px solid #bfdbfe',
-            }}
-            className="mobile-quick-call"
-            title="Appeler"
-          >
+        <div className="mobile-trigger-wrap">
+          <a href={site.phoneHref} className="icon-btn icon-btn-blue" aria-label="Appeler">
             <Phone size={18} />
           </a>
-
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              border: '1px solid rgba(15, 23, 42, 0.12)',
-              backgroundColor: '#ffffff',
-              color: '#0f172a',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-            aria-label="Ouvrir le menu"
-          >
+          <button onClick={() => setMobileMenuOpen(true)} className="icon-btn" aria-label="Ouvrir le menu" aria-expanded={mobileMenuOpen}>
             <Menu size={22} />
           </button>
         </div>
       </div>
 
-      {/* Enhanced Full-screen / Overlay Mobile Menu */}
       {mobileMenuOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 100,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          {/* Drawer Box */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              width: '100%',
-              maxWidth: '380px',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '-10px 0 30px rgba(0,0,0,0.15)',
-              overflowY: 'auto',
-              padding: '24px 20px',
-              position: 'relative',
-              animation: 'slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drawer Header: Logo + Close Button */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingBottom: '20px',
-                borderBottom: '1px solid #f1f5f9',
-                marginBottom: '20px',
-              }}
-            >
+        <div className="drawer-overlay" onClick={() => setMobileMenuOpen(false)}>
+          <div className="drawer" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Menu">
+            <div className="drawer-head">
               <Logo size="sm" />
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '12px',
-                  backgroundColor: '#f1f5f9',
-                  color: '#0f172a',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid #e2e8f0',
-                }}
-                aria-label="Fermer le menu"
-              >
+              <button onClick={() => setMobileMenuOpen(false)} className="icon-btn" aria-label="Fermer le menu">
                 <X size={20} />
               </button>
             </div>
 
-            {/* Navigation links */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
-              <div
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.12em',
-                  color: '#94a3b8',
-                  marginBottom: '4px',
-                  paddingLeft: '6px',
-                }}
-              >
-                Navigation
-              </div>
-
-              {navItems.map((item) => {
-                const Icon = item.icon;
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
+              {[{ label: 'Accueil', href: '/' }, ...navItems].map((item) => {
+                const active = item.href === '/' ? pathname === '/' : isActive(item.href);
                 return (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 14px',
-                      borderRadius: '14px',
-                      color: '#1e293b',
-                      fontSize: '15px',
-                      fontWeight: 500,
-                      textDecoration: 'none',
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #f1f5f9',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '8px',
-                          backgroundColor: '#ffffff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#1d4ed8',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                        }}
-                      >
-                        <Icon size={16} />
-                      </div>
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronRight size={16} color="#94a3b8" />
-                  </a>
+                  <Link key={item.href} href={item.href} className={`drawer-link ${active ? 'drawer-link-active' : ''}`}>
+                    <span>{item.label}</span>
+                    <ChevronRight size={16} />
+                  </Link>
                 );
               })}
+            </nav>
 
-              <a
-                href="#contact"
-                onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 14px',
-                  borderRadius: '14px',
-                  color: '#1e293b',
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #f1f5f9',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '8px',
-                      backgroundColor: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#1d4ed8',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                    }}
-                  >
-                    <MapPin size={16} />
-                  </div>
-                  <span>Contact &amp; Visite</span>
-                </div>
-                <ChevronRight size={16} color="#94a3b8" />
-              </a>
-            </div>
-
-            {/* Bottom Actions inside drawer */}
-            <div
-              style={{
-                borderTop: '1px solid #f1f5f9',
-                paddingTop: '20px',
-                marginTop: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <a
-                href="tel:0616219905"
-                className="phone-pill-btn"
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  padding: '14px 20px',
-                  fontSize: '15px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: 'var(--shadow-sm)',
-                }}
-              >
+            <div className="drawer-actions">
+              <a href={site.phoneHref} className="phone-pill-btn" style={{ width: '100%' }}>
                 <Phone size={17} />
-                <span>06 16 21 99 05</span>
+                <span>{site.phone}</span>
               </a>
-
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onOpenDevis?.();
+                  openQuote();
                 }}
                 className="btn-primary"
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  padding: '14px 20px',
-                  fontSize: '15px',
-                }}
+                style={{ width: '100%' }}
               >
                 <span>Demander un devis gratuit</span>
                 <ArrowUpRight size={17} />
               </button>
-
-              <div
-                style={{
-                  fontSize: '11px',
-                  color: '#94a3b8',
-                  textAlign: 'center',
-                  marginTop: '8px',
-                  lineHeight: 1.5,
-                }}
-              >
-                L.I.N RÉNOVATION · Toulouse (31)
-                <br />
-                Garantie Décennale &amp; RC Pro
-              </div>
+              <p style={{ fontSize: '12px', color: 'var(--text-light)', textAlign: 'center', marginTop: '6px' }}>
+                {site.name} · {site.city} (31) · Garantie décennale
+              </p>
             </div>
           </div>
         </div>

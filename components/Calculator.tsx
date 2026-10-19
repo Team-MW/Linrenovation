@@ -1,298 +1,179 @@
 'use client';
 
 import { useState } from 'react';
-import { Calculator as CalcIcon, Check, ArrowRight, ShieldCheck, PhoneCall, Sparkles } from 'lucide-react';
-
-interface CalculatorProps {
-  onDirectQuote?: (quoteData: any) => void;
-}
+import { Check, ArrowRight, Sparkles } from 'lucide-react';
 
 const projectTypes = [
-  { id: 'globale', label: 'Rénovation Globale', basePrice: 950, unit: 'm²' },
-  { id: 'sdb', label: 'Salle de Bain / Suite', basePrice: 1200, unit: 'm²', defaultArea: 10 },
-  { id: 'cuisine', label: 'Cuisine & Agencement', basePrice: 1100, unit: 'm²', defaultArea: 18 },
-  { id: 'peinture_sol', label: 'Peintures & Sols', basePrice: 85, unit: 'm²' },
-  { id: 'isolation', label: 'Isolation & Plâtrerie', basePrice: 140, unit: 'm²' },
+  { id: 'globale', label: 'Rénovation globale', basePrice: 950, defaultArea: 65 },
+  { id: 'sdb', label: 'Salle de bain', basePrice: 1200, defaultArea: 8 },
+  { id: 'cuisine', label: 'Cuisine', basePrice: 1100, defaultArea: 15 },
+  { id: 'peinture_sol', label: 'Peinture & sols', basePrice: 85, defaultArea: 60 },
+  { id: 'isolation', label: 'Isolation & plâtrerie', basePrice: 140, defaultArea: 60 },
 ];
 
 const finishLevels = [
-  { id: 'standard', label: 'Standard Soigné', multiplier: 1.0, desc: 'Matériaux certifiés, finitions soignées' },
-  { id: 'confort', label: 'Confort Premium', multiplier: 1.3, desc: 'Grand format, robinetterie encastrée, chêne' },
-  { id: 'prestige', label: 'Signature Architecte', multiplier: 1.65, desc: 'Sur-mesure total, marbre, gorges LED, domotique' },
+  { id: 'standard', label: 'Standard soigné', multiplier: 1.0, desc: 'Matériaux certifiés, finitions soignées' },
+  { id: 'confort', label: 'Confort premium', multiplier: 1.3, desc: 'Grand format, robinetterie encastrée, chêne' },
+  { id: 'prestige', label: 'Signature architecte', multiplier: 1.65, desc: 'Sur-mesure, pierre naturelle, éclairage intégré' },
 ];
 
-export default function Calculator({ onDirectQuote }: CalculatorProps) {
+const euro = (n: number) => `${n.toLocaleString('fr-FR')} €`;
+
+export default function Calculator() {
   const [selectedType, setSelectedType] = useState(projectTypes[0]);
-  const [surface, setSurface] = useState(65);
+  const [surface, setSurface] = useState(projectTypes[0].defaultArea);
   const [finishLevel, setFinishLevel] = useState(finishLevels[1]);
   const [submitted, setSubmitted] = useState(false);
-  
-  // Lead form
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    city: 'Toulouse',
-  });
+  const [formData, setFormData] = useState({ name: '', phone: '' });
 
-  // Calculate indicative budget
-  const rawEstimate = selectedType.basePrice * surface * finishLevel.multiplier;
-  const minEstimate = Math.round((rawEstimate * 0.9) / 500) * 500;
-  const maxEstimate = Math.round((rawEstimate * 1.15) / 500) * 500;
+  const raw = selectedType.basePrice * surface * finishLevel.multiplier;
+  const minEstimate = Math.max(500, Math.round((raw * 0.9) / 500) * 500);
+  const maxEstimate = Math.max(minEstimate + 500, Math.round((raw * 1.15) / 500) * 500);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.phone) return;
     setSubmitted(true);
-    onDirectQuote?.({
-      ...formData,
-      projectType: selectedType.label,
-      surface,
-      finish: finishLevel.label,
-      estimate: `${minEstimate.toLocaleString('fr-FR')} € - ${maxEstimate.toLocaleString('fr-FR')} €`,
-    });
   };
 
   return (
-    <section id="simulateur" className="section-padding" style={{ backgroundColor: '#ffffff' }}>
-      <div className="container">
-        
-        <div style={{ textAlign: 'center', maxWidth: '750px', margin: '0 auto 50px' }}>
-          <div className="eyebrow-badge">
-            TRANSPARENCE &amp; BUDGET
-          </div>
-          <h2 style={{ fontSize: 'clamp(2rem, 3.6vw, 3rem)', marginBottom: '16px' }}>
-            Estimez le coût de vos travaux en 1 minute.
-          </h2>
-          <p style={{ fontSize: '17px', color: '#64748b' }}>
-            Obtenez une première projection budgétaire claire pour votre projet à Toulouse, sans engagement.
-          </p>
-          <div className="da-separator" />
-        </div>
-
-        {/* Calculator Card matching DA */}
-        <div
-          className="da-card"
-          style={{
-            maxWidth: '960px',
-            margin: '0 auto',
-            padding: 'clamp(24px, 4vw, 44px)',
-            borderRadius: '28px',
-          }}
-        >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
-            
-            {/* Left Column: Settings */}
-            <div>
-              {/* 1. Project Type */}
-              <div style={{ marginBottom: '28px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  1. Nature de votre projet
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '10px' }}>
-                  {projectTypes.map((type) => {
-                    const isSelected = selectedType.id === type.id;
-                    return (
-                      <button
-                        key={type.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedType(type);
-                          if (type.defaultArea) setSurface(type.defaultArea);
-                        }}
-                        style={{
-                          padding: '12px 10px',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid #0f172a' : '1px solid #e2e8f0',
-                          backgroundColor: isSelected ? '#0f172a' : '#ffffff',
-                          color: isSelected ? '#ffffff' : '#334155',
-                          fontSize: '13px',
-                          fontWeight: 500,
-                          textAlign: 'center',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        {type.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. Surface */}
-              <div style={{ marginBottom: '28px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    2. Surface à rénover
-                  </label>
-                  <span style={{ fontSize: '18px', fontWeight: 700, color: '#1d4ed8' }}>
-                    {surface} m²
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="220"
-                  step="5"
-                  value={surface}
-                  onChange={(e) => setSurface(Number(e.target.value))}
-                  style={{
-                    width: '100%',
-                    accentColor: '#1d4ed8',
-                    cursor: 'pointer',
-                    height: '6px',
-                  }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginTop: '6px' }}>
-                  <span>10 m² (Studio / SdB)</span>
-                  <span>100 m²</span>
-                  <span>220 m² (Maison)</span>
-                </div>
-              </div>
-
-              {/* 3. Standing */}
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#0f172a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  3. Niveau de standing souhaité
-                </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {finishLevels.map((lvl) => {
-                    const isSelected = finishLevel.id === lvl.id;
-                    return (
-                      <div
-                        key={lvl.id}
-                        onClick={() => setFinishLevel(lvl)}
-                        style={{
-                          padding: '12px 16px',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid #1d4ed8' : '1px solid #e2e8f0',
-                          backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        <div>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: isSelected ? '#1e3a8a' : '#0f172a' }}>
-                            {lvl.label}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#64748b' }}>
-                            {lvl.desc}
-                          </div>
-                        </div>
-                        {isSelected && <Check size={18} color="#1d4ed8" />}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-            </div>
-
-            {/* Right Column: Live Estimate & Validation */}
-            <div
-              style={{
-                backgroundColor: '#f8fafc',
-                borderRadius: '20px',
-                padding: '30px 24px',
-                border: '1px solid #e2e8f0',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1d4ed8', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  <Sparkles size={14} />
-                  <span>Estimation indicative L.I.N</span>
-                </div>
-
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 3.5vw, 36px)', fontWeight: 600, color: '#0f172a', lineHeight: 1.1, marginBottom: '6px' }}>
-                  {minEstimate.toLocaleString('fr-FR')} € – {maxEstimate.toLocaleString('fr-FR')} €
-                </div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '22px' }}>
-                  TTC · Main-d'œuvre &amp; matériaux inclus selon finitions
-                </div>
-
-                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px', marginBottom: '20px', fontSize: '13px', color: '#334155', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Type :</span>
-                    <strong style={{ color: '#0f172a' }}>{selectedType.label}</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Surface :</span>
-                    <strong style={{ color: '#0f172a' }}>{surface} m²</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Finition :</span>
-                    <strong style={{ color: '#0f172a' }}>{finishLevel.label}</strong>
-                  </div>
-                </div>
-              </div>
-
-              {submitted ? (
-                <div style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
-                  <Check size={28} color="#059669" style={{ margin: '0 auto 8px' }} />
-                  <div style={{ fontWeight: 600, color: '#065f46', fontSize: '15px' }}>Demande enregistrée avec succès !</div>
-                  <div style={{ fontSize: '13px', color: '#047857', marginTop: '4px' }}>
-                    Notre responsable travaux vous recontacte sous 24h pour affiner votre devis et fixer une visite sur site.
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
-                    Recevoir l'étude détaillée &amp; réserver un diagnostic :
-                  </div>
-
-                  <input
-                    type="text"
-                    required
-                    placeholder="Votre Nom & Prénom"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '14px',
-                      outline: 'none',
+    <div className="da-card calc-card">
+      <div className="calc-grid">
+        <div>
+          <fieldset className="calc-block">
+            <legend className="calc-label">1. Nature du projet</legend>
+            <div className="calc-types">
+              {projectTypes.map((type) => {
+                const isSelected = selectedType.id === type.id;
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => {
+                      setSelectedType(type);
+                      setSurface(type.defaultArea);
                     }}
-                  />
-
-                  <input
-                    type="tel"
-                    required
-                    placeholder="Numéro de téléphone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '14px',
-                      outline: 'none',
-                    }}
-                  />
-
-                  <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '4px' }}>
-                    <span>Valider mon chiffrage gratuit</span>
-                    <ArrowRight size={16} />
+                    className={`calc-type ${isSelected ? 'calc-type-active' : ''}`}
+                  >
+                    {type.label}
                   </button>
-
-                  <div style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center' }}>
-                    Aucun engagement · Réponse sous 24h ouvrées
-                  </div>
-                </form>
-              )}
-
+                );
+              })}
             </div>
+          </fieldset>
 
+          <div className="calc-block">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', gap: '12px' }}>
+              <label htmlFor="calc-surface" className="calc-label" style={{ marginBottom: 0 }}>2. Surface</label>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--brand-blue)' }}>{surface} m²</span>
+            </div>
+            <input
+              id="calc-surface"
+              type="range"
+              min="4"
+              max="220"
+              step="1"
+              value={surface}
+              onChange={(e) => setSurface(Number(e.target.value))}
+              className="calc-range"
+            />
+            <div className="calc-range-legend">
+              <span>4 m²</span>
+              <span>110 m²</span>
+              <span>220 m²</span>
+            </div>
           </div>
+
+          <fieldset className="calc-block" style={{ marginBottom: 0 }}>
+            <legend className="calc-label">3. Niveau de finition</legend>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {finishLevels.map((lvl) => {
+                const isSelected = finishLevel.id === lvl.id;
+                return (
+                  <button
+                    key={lvl.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setFinishLevel(lvl)}
+                    className={`calc-finish ${isSelected ? 'calc-finish-active' : ''}`}
+                  >
+                    <span>
+                      <span className="calc-finish-title">{lvl.label}</span>
+                      <span className="calc-finish-desc">{lvl.desc}</span>
+                    </span>
+                    {isSelected && <Check size={18} color="var(--brand-blue)" />}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
         </div>
 
+        <div className="calc-result">
+          <div>
+            <div className="calc-result-eyebrow">
+              <Sparkles size={14} />
+              <span>Estimation indicative</span>
+            </div>
+            <div className="calc-price" aria-live="polite">
+              {euro(minEstimate)} – {euro(maxEstimate)}
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '22px' }}>
+              TTC · Main-d’œuvre & fournitures incluses
+            </div>
+
+            <dl className="calc-summary">
+              <div><dt>Type</dt><dd>{selectedType.label}</dd></div>
+              <div><dt>Surface</dt><dd>{surface} m²</dd></div>
+              <div><dt>Finition</dt><dd>{finishLevel.label}</dd></div>
+            </dl>
+          </div>
+
+          {submitted ? (
+            <div className="calc-success">
+              <Check size={28} color="#059669" />
+              <div style={{ fontWeight: 600, color: '#065f46', fontSize: '15px' }}>Demande enregistrée !</div>
+              <div style={{ fontSize: '13px', color: '#047857', marginTop: '4px' }}>
+                Nous vous rappelons sous 24 h pour affiner l’estimation et fixer une visite.
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Recevoir une étude détaillée :
+              </div>
+              <input
+                className="form-input"
+                type="text"
+                required
+                autoComplete="name"
+                aria-label="Nom et prénom"
+                placeholder="Nom & prénom"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              <input
+                className="form-input"
+                type="tel"
+                required
+                autoComplete="tel"
+                aria-label="Téléphone"
+                placeholder="Téléphone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+              <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '4px' }}>
+                <span>Être rappelé gratuitement</span>
+                <ArrowRight size={16} />
+              </button>
+              <p style={{ fontSize: '11.5px', color: 'var(--text-light)', textAlign: 'center' }}>
+                Estimation non contractuelle · Sans engagement
+              </p>
+            </form>
+          )}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

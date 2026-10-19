@@ -1,59 +1,33 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface LogoProps {
-  className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg';
   asLink?: boolean;
 }
 
-export default function Logo({ className = '', size = 'md', asLink = true }: LogoProps) {
-  const dimensions = {
-    sm: { height: 38, width: 180 },
-    md: { height: 50, width: 230 },
-    lg: { height: 64, width: 290 },
-    xl: { height: 80, width: 360 },
-  };
+const scales = { sm: 0.8, md: 1, lg: 1.3 };
 
-  const { height, width } = dimensions[size];
+export default function Logo({ size = 'md', asLink = true }: LogoProps) {
+  const s = scales[size];
 
   const content = (
-    <div
-      style={{
-        position: 'relative',
-        height: `${height}px`,
-        width: `${width}px`,
-        display: 'flex',
-        alignItems: 'center',
-      }}
-      className={className}
-    >
-      <Image
-        src="/logo.png"
-        alt="L.I.N Rénovation - Entreprise générale de bâtiment Toulouse"
-        width={width}
-        height={height}
-        style={{
-          height: '100%',
-          width: 'auto',
-          objectFit: 'contain',
-          display: 'block',
-        }}
-        priority
-      />
-    </div>
+    <span className="logo" style={{ fontSize: `${s}rem` }}>
+      <svg className="logo-mark" viewBox="0 0 40 40" aria-hidden>
+        <rect width="40" height="40" rx="10" fill="#0f172a" />
+        <path d="M11 28V12h3.4v13h8.2v3H11Z" fill="#fff" />
+        <path d="M25 28V17l4-3v14h-4Z" fill="#60a5fa" />
+      </svg>
+      <span className="logo-text">
+        <span className="logo-name">L.I.N</span>
+        <span className="logo-sub">Rénovation</span>
+      </span>
+    </span>
   );
 
-  if (!asLink) {
-    return content;
-  }
+  if (!asLink) return content;
 
   return (
-    <Link
-      href="/"
-      className="inline-flex items-center transition-opacity hover:opacity-90"
-      style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
-    >
+    <Link href="/" aria-label="Accueil L.I.N Rénovation" style={{ display: 'inline-flex', alignItems: 'center' }}>
       {content}
     </Link>
   );

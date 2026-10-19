@@ -2,228 +2,78 @@
 
 import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { Sparkles, SlidersHorizontal, ArrowLeftRight } from 'lucide-react';
+import { Sparkles, ArrowLeftRight } from 'lucide-react';
 
 export default function BeforeAfter() {
-  const [sliderPosition, setSliderPosition] = useState(50);
-  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
 
-  const handleMove = useCallback((clientX: number) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-    setSliderPosition(percentage);
+  const moveTo = useCallback((clientX: number) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPosition(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)));
   }, []);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    handleMove(e.touches[0].clientX);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    handleMove(e.clientX);
-  };
+  const presets = [
+    { value: 20, label: 'Avant' },
+    { value: 50, label: 'Comparer' },
+    { value: 80, label: 'Après' },
+  ];
 
   return (
-    <section id="avant-apres" className="section-padding" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}>
-      <div className="container">
-        
-        <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 48px' }}>
-          <div className="eyebrow-badge">
-            TRANSFORMATION &amp; SAVOIR-FAIRE
-          </div>
-          <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', marginBottom: '16px' }}>
-            La métamorphose en direct.
-          </h2>
-          <p style={{ fontSize: '17px', color: '#64748b' }}>
-            Faites glisser le curseur pour apprécier le niveau d'exigence et le soin apporté à chaque détail lors de nos rénovations complètes à Toulouse.
-          </p>
+    <div>
+      <div
+        ref={containerRef}
+        className="ba-container"
+        onPointerDown={(e) => {
+          dragging.current = true;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          moveTo(e.clientX);
+        }}
+        onPointerMove={(e) => dragging.current && moveTo(e.clientX)}
+        onPointerUp={() => (dragging.current = false)}
+        onPointerCancel={() => (dragging.current = false)}
+        role="slider"
+        tabIndex={0}
+        aria-label="Comparaison avant / après"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(position)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') setPosition((p) => Math.max(0, p - 5));
+          if (e.key === 'ArrowRight') setPosition((p) => Math.min(100, p + 5));
+        }}
+      >
+        <Image src="/after-salon.jpg" alt="Salon après rénovation" fill sizes="(max-width: 1100px) 100vw, 1050px" style={{ objectFit: 'cover' }} draggable={false} />
+
+        <div className="ba-before" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
+          <Image src="/before-salon.jpg" alt="Salon avant travaux" fill sizes="(max-width: 1100px) 100vw, 1050px" style={{ objectFit: 'cover' }} draggable={false} />
         </div>
 
-        {/* Interactive Slider Container */}
-        <div
-          ref={containerRef}
-          onMouseDown={() => setIsDragging(true)}
-          onMouseUp={() => setIsDragging(false)}
-          onMouseLeave={() => setIsDragging(false)}
-          onMouseMove={handleMouseMove}
-          onTouchMove={handleTouchMove}
-          style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '1050px',
-            margin: '0 auto',
-            aspectRatio: '16/9',
-            maxHeight: '580px',
-            borderRadius: '24px',
-            overflow: 'hidden',
-            cursor: 'ew-resize',
-            userSelect: 'none',
-            boxShadow: 'var(--shadow-lg)',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-          }}
-        >
-          {/* AFTER Image (Full background) */}
-          <div style={{ position: 'absolute', inset: 0 }}>
-            <Image
-              src="/after-salon.jpg"
-              alt="Salon rénové haut de gamme à Toulouse"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-            />
-            {/* After Tag */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                backgroundColor: 'rgba(15, 23, 42, 0.85)',
-                backdropFilter: 'blur(8px)',
-                color: '#ffffff',
-                padding: '8px 16px',
-                borderRadius: '9999px',
-                fontSize: '13px',
-                fontWeight: 600,
-                letterSpacing: '0.05em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              <Sparkles size={14} color="#60a5fa" />
-              <span>APRÈS RÉNOVATION L.I.N</span>
-            </div>
-          </div>
+        <span className="ba-tag ba-tag-left">Avant</span>
+        <span className="ba-tag ba-tag-right">
+          <Sparkles size={13} color="#60a5fa" /> Après
+        </span>
 
-          {/* BEFORE Image (Clipped layer) */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              bottom: 0,
-              width: `${sliderPosition}%`,
-              overflow: 'hidden',
-            }}
-          >
-            <div style={{ position: 'relative', width: containerRef.current ? containerRef.current.clientWidth : '1050px', height: '100%' }}>
-              <Image
-                src="/before-salon.jpg"
-                alt="État initial avant rénovation"
-                fill
-                style={{ objectFit: 'cover' }}
-                priority
-              />
-            </div>
-
-            {/* Before Tag */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                backgroundColor: 'rgba(15, 23, 42, 0.85)',
-                backdropFilter: 'blur(8px)',
-                color: '#ffffff',
-                padding: '8px 16px',
-                borderRadius: '9999px',
-                fontSize: '13px',
-                fontWeight: 600,
-                letterSpacing: '0.05em',
-              }}
-            >
-              AVANT TRAVAUX
-            </div>
-          </div>
-
-          {/* Slider Divider Bar */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              bottom: 0,
-              left: `${sliderPosition}%`,
-              width: '3px',
-              backgroundColor: '#ffffff',
-              boxShadow: '0 0 12px rgba(0,0,0,0.4)',
-              transform: 'translateX(-50%)',
-              pointerEvents: 'none',
-            }}
-          >
-            {/* Center Handle Button */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '46px',
-                height: '46px',
-                borderRadius: '50%',
-                backgroundColor: '#ffffff',
-                color: '#0f172a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
-                border: '2px solid rgba(15, 23, 42, 0.08)',
-              }}
-            >
-              <ArrowLeftRight size={20} />
-            </div>
+        <div className="ba-divider" style={{ left: `${position}%` }}>
+          <div className="ba-handle">
+            <ArrowLeftRight size={20} />
           </div>
         </div>
-
-        {/* Quick presets & hint */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginTop: '24px' }}>
-          <button
-            onClick={() => setSliderPosition(20)}
-            style={{
-              background: sliderPosition === 20 ? '#0f172a' : '#f1f5f9',
-              color: sliderPosition === 20 ? '#ffffff' : '#475569',
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              fontSize: '13px',
-              fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
-          >
-            Voir Avant (80%)
-          </button>
-          <button
-            onClick={() => setSliderPosition(50)}
-            style={{
-              background: sliderPosition === 50 ? '#0f172a' : '#f1f5f9',
-              color: sliderPosition === 50 ? '#ffffff' : '#475569',
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              fontSize: '13px',
-              fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
-          >
-            Vue Comparée (50/50)
-          </button>
-          <button
-            onClick={() => setSliderPosition(80)}
-            style={{
-              background: sliderPosition === 80 ? '#0f172a' : '#f1f5f9',
-              color: sliderPosition === 80 ? '#ffffff' : '#475569',
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              fontSize: '13px',
-              fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
-          >
-            Voir Après (80%)
-          </button>
-        </div>
-
       </div>
-    </section>
+
+      <div className="ba-presets">
+        {presets.map((p) => (
+          <button
+            key={p.value}
+            onClick={() => setPosition(p.value)}
+            className={`pill-toggle ${Math.round(position) === p.value ? 'pill-toggle-active' : ''}`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -1,78 +1,86 @@
-'use client';
-
-import { useState } from 'react';
-import Header from '@/components/Header';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import Hero from '@/components/Hero';
 import BeforeAfter from '@/components/BeforeAfter';
-import Services from '@/components/Services';
-import Calculator from '@/components/Calculator';
+import ServicesGrid from '@/components/Services';
 import Portfolio from '@/components/Portfolio';
 import Process from '@/components/Process';
 import Testimonials from '@/components/Testimonials';
-import ZoneIntervention from '@/components/ZoneIntervention';
-import ContactSection from '@/components/ContactSection';
-import Footer from '@/components/Footer';
-import FloatingCallBar from '@/components/FloatingCallBar';
-import QuoteModal from '@/components/QuoteModal';
+import SectionHeading from '@/components/SectionHeading';
+import CtaBanner from '@/components/CtaBanner';
 
 export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalService, setModalService] = useState<string | undefined>(undefined);
-
-  const handleOpenDevis = (serviceName?: string) => {
-    setModalService(serviceName);
-    setModalOpen(true);
-  };
-
-  const handleCloseDevis = () => {
-    setModalOpen(false);
-    setModalService(undefined);
-  };
-
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Sticky Header with DA phone pill */}
-      <Header onOpenDevis={() => handleOpenDevis()} />
+    <>
+      <Hero />
 
-      {/* Hero Section */}
-      <Hero onOpenDevis={() => handleOpenDevis()} />
+      <section className="section-padding">
+        <div className="container">
+          <SectionHeading
+            eyebrow="Nos expertises"
+            title="Un seul interlocuteur pour l’ensemble de vos travaux."
+            description="Notre équipe réunit tous les corps d’état du bâtiment pour vous garantir fluidité, maîtrise du calendrier et finitions irréprochables."
+          />
+          <ServicesGrid showDetails={false} />
+          <div className="section-more">
+            <Link href="/services" className="btn-secondary">
+              Toutes nos expertises <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
-      {/* Interactive Before / After transformation */}
-      <BeforeAfter />
+      <section className="section-padding section-white">
+        <div className="container">
+          <SectionHeading
+            eyebrow="Avant / après"
+            title="La métamorphose en direct."
+            description="Faites glisser le curseur pour mesurer le soin apporté à chaque détail."
+          />
+          <BeforeAfter />
+        </div>
+      </section>
 
-      {/* Tous corps d'état services */}
-      <Services onSelectService={(service) => handleOpenDevis(service)} />
+      <section className="section-padding">
+        <div className="container">
+          <SectionHeading
+            eyebrow="Réalisations récentes"
+            title="Des chantiers pensés pour durer."
+            description="Une sélection de projets livrés à Toulouse et dans sa première couronne."
+          />
+          <Portfolio limit={3} showFilters={false} />
+          <div className="section-more">
+            <Link href="/realisations" className="btn-secondary">
+              Voir toutes les réalisations <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
-      {/* Real-time Project Simulator */}
-      <Calculator onDirectQuote={(data) => console.log('Estimation reçue:', data)} />
+      <section className="section-padding section-white">
+        <div className="container">
+          <SectionHeading
+            eyebrow="Notre méthode"
+            title="Une méthodologie rigoureuse, zéro stress."
+            description="Chaque phase est structurée pour garantir transparence, ponctualité et sérénité."
+          />
+          <Process />
+          <div className="section-more">
+            <Link href="/methode" className="btn-secondary">
+              Découvrir notre méthode <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
-      {/* High-end Portfolio */}
-      <Portfolio />
+      <section className="section-padding">
+        <div className="container">
+          <SectionHeading eyebrow="Avis clients" title="Ils nous ont confié leur intérieur." />
+          <Testimonials />
+        </div>
+      </section>
 
-      {/* 4-Step Methodology */}
-      <Process />
-
-      {/* Verified Reviews */}
-      <Testimonials />
-
-      {/* Geographic Coverage */}
-      <ZoneIntervention />
-
-      {/* Contact & Quotation Section */}
-      <ContactSection />
-
-      {/* Footer matching exact DA */}
-      <Footer />
-
-      {/* Mobile Floating Call Pill */}
-      <FloatingCallBar onOpenDevis={() => handleOpenDevis()} />
-
-      {/* Quick Quote Modal */}
-      <QuoteModal
-        isOpen={modalOpen}
-        onClose={handleCloseDevis}
-        initialService={modalService}
-      />
-    </main>
+      <CtaBanner />
+    </>
   );
 }
