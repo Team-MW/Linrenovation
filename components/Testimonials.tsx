@@ -14,7 +14,7 @@ function Stars() {
 export default function Testimonials() {
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-24px', marginBottom: '40px' }}>
+      <div style={{ display: 'flex', marginTop: '-16px', marginBottom: '40px' }}>
         <div className="rating-pill">
           <Stars />
           <strong>5,0 / 5</strong>

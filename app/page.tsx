@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import Hero from '@/components/Hero';
+import Trades from '@/components/Trades';
+import Values from '@/components/Values';
+import Prestations from '@/components/Prestations';
 import BeforeAfter from '@/components/BeforeAfter';
-import ServicesGrid from '@/components/Services';
 import Portfolio from '@/components/Portfolio';
 import Process from '@/components/Process';
+import Atelier from '@/components/Atelier';
+import Partners from '@/components/Partners';
 import Testimonials from '@/components/Testimonials';
 import SectionHeading from '@/components/SectionHeading';
 import CtaBanner from '@/components/CtaBanner';
@@ -13,42 +17,52 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <Trades />
 
       <section className="section-padding">
         <div className="container">
+          <Values />
+        </div>
+      </section>
+
+      <section className="section-padding section-white" id="prestations">
+        <div className="container">
           <SectionHeading
-            eyebrow="Nos expertises"
-            title="Un seul interlocuteur pour l’ensemble de vos travaux."
-            description="Notre équipe réunit tous les corps d’état du bâtiment pour vous garantir fluidité, maîtrise du calendrier et finitions irréprochables."
+            eyebrow="Le métier"
+            title="Un seul interlocuteur, tous les corps d’état."
+            description="Vous ne jonglez pas avec dix artisans. On coordonne l’ensemble du chantier et on répond de chaque finition."
           />
-          <ServicesGrid showDetails={false} />
+          <Prestations />
           <div className="section-more">
             <Link href="/services" className="btn-secondary">
-              Toutes nos expertises <ArrowRight size={16} />
+              Toutes nos prestations <ArrowRight size={16} />
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="section-padding section-white">
+      <section className="section-padding" id="methode">
         <div className="container">
           <SectionHeading
-            eyebrow="Avant / après"
-            title="La métamorphose en direct."
-            description="Faites glisser le curseur pour mesurer le soin apporté à chaque détail."
+            eyebrow="La méthode"
+            title="Quatre étapes, zéro mauvaise surprise."
+            description="Chaque phase est structurée pour garantir transparence, ponctualité et sérénité."
           />
-          <BeforeAfter />
+          <Process />
         </div>
       </section>
 
-      <section className="section-padding">
+      <section className="section-padding section-white" id="realisations">
         <div className="container">
           <SectionHeading
-            eyebrow="Réalisations récentes"
-            title="Des chantiers pensés pour durer."
-            description="Une sélection de projets livrés à Toulouse et dans sa première couronne."
+            eyebrow="Réalisations"
+            title="Des lieux qui ont changé de vie."
+            description="Glissez le curseur pour voir la transformation. Un aperçu de nos chantiers récents à Toulouse et dans la métropole."
           />
-          <Portfolio limit={3} showFilters={false} />
+          <BeforeAfter />
+          <div style={{ marginTop: 'clamp(32px, 5vw, 48px)' }}>
+            <Portfolio limit={3} showFilters={false} />
+          </div>
           <div className="section-more">
             <Link href="/realisations" className="btn-secondary">
               Voir toutes les réalisations <ArrowRight size={16} />
@@ -57,25 +71,26 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section-padding section-white">
+      <section className="section-padding" id="atelier">
+        <div className="container">
+          <Atelier />
+        </div>
+      </section>
+
+      <section className="section-padding section-white" id="confiance">
         <div className="container">
           <SectionHeading
-            eyebrow="Notre méthode"
-            title="Une méthodologie rigoureuse, zéro stress."
-            description="Chaque phase est structurée pour garantir transparence, ponctualité et sérénité."
+            eyebrow="Ils nous font confiance"
+            title="Particuliers, mais aussi mairies, agences et architectes."
+            description="Au-delà des particuliers, des mairies, des agences immobilières et des architectes nous confient leurs chantiers."
           />
-          <Process />
-          <div className="section-more">
-            <Link href="/methode" className="btn-secondary">
-              Découvrir notre méthode <ArrowRight size={16} />
-            </Link>
-          </div>
+          <Partners />
         </div>
       </section>
 
       <section className="section-padding">
         <div className="container">
-          <SectionHeading eyebrow="Avis clients" title="Ils nous ont confié leur intérieur." />
+          <SectionHeading eyebrow="On en parle" title="La confiance, ça se mérite chantier après chantier." />
           <Testimonials />
         </div>
       </section>

@@ -6,6 +6,7 @@ import SectionHeading from '@/components/SectionHeading';
 import Testimonials from '@/components/Testimonials';
 import ZoneIntervention from '@/components/ZoneIntervention';
 import CtaBanner from '@/components/CtaBanner';
+import Atelier from '@/components/Atelier';
 
 export const metadata: Metadata = {
   title: 'À propos',
@@ -53,7 +54,11 @@ export default function AProposPage() {
 
       <section className="section-padding section-white">
         <div className="container">
-          <SectionHeading eyebrow="Nos valeurs" title="Ce qui nous guide sur chaque chantier." />
+          <SectionHeading
+            eyebrow="Nos valeurs"
+            title="Ce qui nous guide sur chaque chantier."
+            description="Lin Rénovation, ce sont des hommes et des femmes proches de leurs clients, qui vous accompagnent dans vos projets."
+          />
           <div className="grid-steps">
             {values.map((v) => {
               const Icon = v.icon;
@@ -71,14 +76,20 @@ export default function AProposPage() {
         </div>
       </section>
 
-      <section className="section-padding">
+      <section className="section-padding" id="atelier">
+        <div className="container">
+          <Atelier />
+        </div>
+      </section>
+
+      <section className="section-padding section-white">
         <div className="container">
           <SectionHeading eyebrow="Avis clients" title="Ils nous ont fait confiance." />
           <Testimonials />
         </div>
       </section>
 
-      <section className="section-padding section-white">
+      <section className="section-padding">
         <div className="container">
           <SectionHeading
             eyebrow="Zone d’intervention"

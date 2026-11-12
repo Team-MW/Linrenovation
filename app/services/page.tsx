@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import PageHeader from '@/components/PageHeader';
-import ServicesGrid from '@/components/Services';
+import Prestations from '@/components/Prestations';
 import CtaBanner from '@/components/CtaBanner';
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function ServicesPage() {
       />
       <section className="section-padding">
         <div className="container">
-          <ServicesGrid />
+          <Prestations />
         </div>
       </section>
       <CtaBanner />
